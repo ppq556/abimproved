@@ -1,0 +1,7 @@
+* Motywacja
+- usunięcie reklam i ogłoszeń sponsorowanych - zrobione
+- usunięcie reklam nachalnych i powtrzalnych (np. GSP / RAK od Atena Guns) - TODO
+
+* Użycie
+$ python3 get_ab_items.py > armybazar.html
+$ firefox armybazar.html
