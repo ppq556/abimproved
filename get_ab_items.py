@@ -10,7 +10,7 @@ from html.parser import HTMLParser
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # tytuły ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63)$"
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|ładownica.*|[Kk]abura.*)$"
 
 ### Początek kodu
 class Adv:
@@ -32,7 +32,7 @@ class Adv:
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
 		finalOutput  = '<div class="' + advclass + '">\n\t\t<a href="' + self.url + '" class="img"><img src="' + self.imgUrl + '" alt="' + self.imgAlt + '"></img></a>\n\t\t'
-		finalOutput += '<div class="top"><h2><a href="' + self.url + '">' + self.lead + '</a> - <span>' + self.advtype + '</span></h2></div>\n\t\t<p>' + self.text + '</p>\n\t\t'
+		finalOutput += '<div class="top"><h2><a href="' + self.url + '">' + self.lead + '</a></h2></div>\n\t\t<p>' + self.text + '</p>\n\t\t'
 		finalOutput += '<ul class="cendat">\n\t\t\t<li class="cena"><strong>' + self.price + '</strong></li>\n\t\t\t<li class="datum">' + self.date + ' ' + self.time + '</li>\n\t\t\t'
 		finalOutput += '<li class="lokalita">' + self.location + '</li>\n\t\t</ul>\n</div>\n'
 		return finalOutput
