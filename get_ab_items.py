@@ -39,6 +39,10 @@ class Adv:
 
 AdvList = []
 
+def printAdvs():
+	for adv in AdvList:
+		print(str(adv))
+
 class MyHTMLParser(HTMLParser):
 	append = 0
 	subdivs = 0
@@ -117,10 +121,6 @@ class MyHTMLParser(HTMLParser):
 		### jeśli jesteśmy w trybie analizy ogłoszenia, to przekazujemy dane do interpretacji
 		if self.append == 1:
 			self.append_data('', data)
-
-def printAdvs():
-	for adv in AdvList:
-		print(str(adv))
 
 # Instancjalizacja klasy analizatora HTTP
 http = httplib2.Http()
