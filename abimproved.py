@@ -16,8 +16,8 @@ blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]ado
 class Adv:
 	advtype = "" # Sprzedaż / Zakup
 	url = ""
-	imgUrl = ""
-	imgAlt = ""
+	imgPrevUrl = ""
+	imgPrevAlt = ""
 	lead = ""
 	text = ""
 	price = ""
@@ -31,7 +31,7 @@ class Adv:
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
-		finalOutput  = '<div class="' + advclass + '">\n\t\t<a href="' + self.url + '" class="img"><img src="' + self.imgUrl + '" alt="' + self.imgAlt + '"></img></a>\n\t\t'
+		finalOutput  = '<div class="' + advclass + '">\n\t\t<a href="' + self.url + '" class="img"><img src="' + self.imgPrevUrl + '" alt="' + self.imgPrevAlt + '"></img></a>\n\t\t'
 		finalOutput += '<div class="top"><h2><a href="' + self.url + '">' + self.lead + '</a></h2></div>\n\t\t<p>' + self.text + '</p>\n\t\t'
 		finalOutput += '<ul class="cendat">\n\t\t\t<li class="cena"><strong>' + self.price + '</strong></li>\n\t\t\t<li class="datum">' + self.date + ' ' + self.time + '</li>\n\t\t\t'
 		finalOutput += '<li class="lokalita">' + self.location + '</li>\n\t\t</ul>\n</div>\n'
@@ -43,13 +43,13 @@ def printAdvs():
 	for adv in AdvList:
 		print(str(adv))
 
-class MyHTMLParser(HTMLParser):
-	append = 0
+class ABHTMLParser(HTMLParser):
+	inside_adv = 0
 	subdivs = 0
 
-	def append_data(self, tag, data):
+	def process_data(self, tag, data):
 		### przychodzące dane interesują nas tylko w trybie analizy konkretnego ogłoszenia
-		if self.append != 1:
+		if self.inside_adv != 1:
 			return
 
 		### jeśli otrzymaliśmy tylko tekst - poza tagiem - uzupełniamy odpowiednie atrybuty obiektu
@@ -85,42 +85,40 @@ class MyHTMLParser(HTMLParser):
 					AdvList[-1].url = attr[1]
 			if tag == "img":
 				if attr[0] == "src":
-					AdvList[-1].imgUrl = attr[1]
+					AdvList[-1].imgPrevUrl = attr[1]
 				elif attr[0] == "alt":
-					AdvList[-1].imgAlt = attr[1]
+					AdvList[-1].imgPrevAlt = attr[1]
 
 	def handle_starttag(self, tag, attrs):
 		### każdy otwarty tag analizujemy
 		# jeśli tagiem jest div, to analizujemy szczególnie mocno
 		if tag == "div":
-			# jeśli jesteśmy w zakresie diva z ogłoszeniem, to uznajemy to
-			# za potrzebny, nowy div głębiej w strukturze HTML i zwiększamy licznik
-			if self.append == 1:
+			# jeśli już jesteśmy w zakresie diva z ogłoszeniem, a pojawia się kolejny div,
+			# to uznajemy go za potrzebny, głębiej w strukturze HTML i zwiększamy licznik
+			if self.inside_adv == 1:
 				self.subdivs += 1
 			for attr in attrs:
-				# jeśli div należy do odpowiedniej klasy, to wchodzimy w tryb ogłoszenia - ustawiamy zmienną
-				# oraz tworzy nowy obiekt reprezentujący ogłoszenie
+				# jeśli nowy div należy do odpowiedniej klasy, to wchodzimy w tryb ogłoszenia
+				# ustawiamy zmienną oraz tworzymy nowy obiekt reprezentujący ogłoszenie
 				if advclass in attr:
 					newAdv = Adv()
 					AdvList.append(newAdv)
-					self.append = 1
-		# jeśli jesteśmy w trybie analizy ogłoszenia, to przekazujemy dane do interpretacji
-		if self.append == 1:
-			self.append_data(tag, attrs)
+					self.inside_adv = 1
+		### a generalnie przekazujemy dane do interpretacji
+		self.process_data(tag, attrs)
 					
 	def handle_endtag(self, tag):
 		### jeśli zamykamy tag div, to jest ważne, czy to tag zamykający zakres ogłoszenia
-		### jeśli tak, zerujemy stan append - wychodzimy poza ogłoszenie
+		### jeśli tak, zerujemy stan inside_adv - wychodzimy z trybu analizy konkretnego ogłoszenia
 		if tag == "div":
 			if self.subdivs == 0:
-				self.append = 0
+				self.inside_adv = 0
 			elif self.subdivs > 0:
 				self.subdivs -= 1
 
 	def handle_data(self, data):
-		### jeśli jesteśmy w trybie analizy ogłoszenia, to przekazujemy dane do interpretacji
-		if self.append == 1:
-			self.append_data('', data)
+		### przekazujemy dane do interpretacji
+		self.process_data('', data)
 
 # Instancjalizacja klasy analizatora HTTP
 http = httplib2.Http()
@@ -130,7 +128,7 @@ body = {'nastranku': '60'}
 content = http.request("http://bron-i-amunicja.armybazar.eu/pl/", method="POST", headers={'Content-type': 'application/x-www-form-urlencoded'}, body=urllib.parse.urlencode(body))[1]
 
 # Wywołujemy parse'owanie
-parser = MyHTMLParser()
+parser = ABHTMLParser()
 parser.feed(content.decode())
 
 # Wypisujemy stały header strony

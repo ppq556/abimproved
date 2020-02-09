@@ -1,4 +1,4 @@
-# Super duper script by ppqa
+# Skrypt do wygodniejszego przeglądania ArmyBazar by ppq556 / avltree
 
 ## Motywacja
 - usunięcie reklam i ogłoszeń sponsorowanych - zrobione
@@ -14,8 +14,8 @@
 
 #### Użycie
 ```shell script
-docker build . -t get_ab_items           # tylko za pierwszym razem
-docker run get_ab_items > armybazar.html
+docker build . -t abimproved           # tylko za pierwszym razem
+docker run abimproved > armybazar.html
 ```
 
 ### Wersja standalone
@@ -26,6 +26,6 @@ docker run get_ab_items > armybazar.html
 
 #### Użycie
 ```shell script
-python3 get_ab_items.py > armybazar.html
+python3 abimproved.py > armybazar.html
 firefox armybazar.html
 ```
