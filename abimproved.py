@@ -9,8 +9,9 @@ from html.parser import HTMLParser
 ### Ustawienia
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
-# tytuły ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]adownica.*|[Kk]abura.*|[Kk]upi.*|[Ll]atarka.*)$"
+# tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]adownica.*|[Kk]abura.*|[Kk]upi.*|[Ll]atarka.*|[Aa]municj.*|[Kk]olb.*|[Mm]agazyne.*|.*DOWOZIMY.*)$"
+blacklisted_text = ".*polarms.*"
 
 ### Początek kodu
 class Adv:
@@ -27,7 +28,7 @@ class Adv:
 
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
-		if self.advtype != "Sprzedaż" or self.advtype == "" or re.match(re.compile(blacklisted_leads), self.lead) != None:
+		if self.advtype != "Sprzedaż" or self.advtype == "" or re.match(re.compile(blacklisted_leads), self.lead) != None or re.match(re.compile(blacklisted_text), self.text) != None:
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
