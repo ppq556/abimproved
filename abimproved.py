@@ -10,8 +10,8 @@ from html.parser import HTMLParser
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]adownica.*|[Kk]abura.*|[Kk]upi.*|[Ll]atarka.*|.*[Aa]municj.*|[Kk]olb.*|[Mm]agazyne.*|.*DOWOZIMY.*|.*pocisk.*)$"
-blacklisted_text = ".*polarms.*"
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]adownica.*|[Kk]abura.*|[Kk]upi.*|[Ll]atarka.*|[Aa]municj.*|[Kk]olb.*|[Mm]agazyne.*|.*DOWOZIMY.*|.*[Łł]uski.*|AMUNICJA.*|Chwyt.*|S[lł]uchawki.*|.*ulary.*|.*pocisk.*)$"
+blacklisted_text = "(.*polarms.*|DOWOZIMY)"
 
 ### Początek kodu
 class Adv:
