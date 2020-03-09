@@ -28,7 +28,7 @@ class Adv:
 
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
-		if self.advtype != "Sprzedaż" or self.advtype == "" or re.match(re.compile(blacklisted_leads), self.lead) != None or re.match(re.compile(blacklisted_text), self.text) != None:
+		if self.advtype != "Sprzedaż" or self.price == "Do uzgodnienia" or self.advtype == "" or re.match(re.compile(blacklisted_leads), self.lead) != None or re.match(re.compile(blacklisted_text), self.text) != None:
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
