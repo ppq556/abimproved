@@ -1,17 +1,23 @@
 #!/usr/bin/python3
+# This Python file uses the following encoding: utf-8
 
+import argparse
 import httplib2
 import urllib
 import re
 
 from html.parser import HTMLParser
 
+parser = argparse.ArgumentParser()
+
 ### Ustawienia
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|[ŁłLl]adownica.*|[Kk]abura.*|[Kk]upi.*|[Ll]atarka.*|.*[Aa]municj.*|[Kk]olb.*|[Mm]agazyne.*|.*DOWOZIMY.*|.*pocisk.*)$"
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|.*[ŁłLl]adownica.*|.*[Kk]abura.*|.*[Kk]upi.*|.*[Ll]atarka.*|.*[Aa]municj.*|[Kk]olb.*|.*[Mm]agazyne.*|.*DOWOZIMY.*|.*pocisk.*)$"
 blacklisted_text = ".*polarms.*"
+available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
+selected_vovoidships = []
 
 ### Początek kodu
 class Adv:
@@ -28,7 +34,7 @@ class Adv:
 
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
-		if self.advtype != "Sprzedaż" or self.advtype == "" or re.match(re.compile(blacklisted_leads, flags=re.IGNORECASE), self.lead) != None or re.match(re.compile(blacklisted_text, flags=re.IGNORECASE), self.text) != None:
+		if self.advtype != "Sprzedaż" or self.advtype == "" or self.price == "Do uzgodnienia" or not self.location in selected_vovoidships or re.match(re.compile(blacklisted_leads, flags=re.IGNORECASE), self.lead) != None or re.match(re.compile(blacklisted_text, flags=re.IGNORECASE), self.text) != None:
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
@@ -120,6 +126,25 @@ class ABHTMLParser(HTMLParser):
 	def handle_data(self, data):
 		### przekazujemy dane do interpretacji
 		self.process_data('', data)
+
+def parseVovoidship(argList):
+	if argList.vovoidship:
+		vovoidshipArgSplit = argList.vovoidship.split(',')
+		for v in vovoidshipArgSplit:
+			if v in available_vovoidships:
+				selected_vovoidships.append(v)
+	if len(selected_vovoidships) < 1:
+		for v in available_vovoidships:
+			selected_vovoidships.append(v)
+		
+	
+# wczytanie argumentów
+parser.add_argument("-v", "--vovoidship", help="wpisz województwa z których ogłoszenia cię interesują (oddzielone przecinkiem)", type=str)
+
+args = parser.parse_args()
+parseVovoidship(args)
+
+# parsowanie argumentu województw
 
 # Instancjalizacja klasy analizatora HTTP
 http = httplib2.Http()

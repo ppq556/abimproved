@@ -29,3 +29,6 @@ docker run abimproved > armybazar.html
 python3 abimproved.py > armybazar.html
 firefox armybazar.html
 ```
+
+### Parametry
+``` -v ``` - (OPCJONALNY) oddzielona przecinkami lista województw, z których ogłoszenia zostaną wyświetlone. Jeżeli nie jest podany, wyświetlają się ogłoszenia z wszystkich województw.
