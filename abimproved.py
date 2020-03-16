@@ -14,8 +14,8 @@ parser = argparse.ArgumentParser()
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*[Uu]chwyt.*|.*[ŁłLl]adownica.*|.*[Kk]abura.*|.*[Kk]upi.*|.*[Ll]atarka.*|.*[Aa]municj.*|[Kk]olb.*|.*[Mm]agazyne.*|.*DOWOZIMY.*|.*pocisk.*)$"
-blacklisted_text = ".*polarms.*"
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*uchwyt.*|[łl]adownica.*|kabura.*|kupi.*|latarka.*|amunicj.*|kolb.*|magazyne.*|.*DOWOZIMY.*|.*łuski.*|.*AMUNICJA.*|Chwyt.*|S[lł]uchawki.*|.*ulary.*|.*pocisk.*|.*Umarex.*|.*CO2.*|.*magazyn.*k.*|.*bagnet.*)$"
+blacklisted_text = "(.*polarms.*|.*DOWOZIMY.*|.*amunicj.*)"
 available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
 selected_vovoidships = []
 
