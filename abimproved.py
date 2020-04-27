@@ -14,8 +14,10 @@ parser = argparse.ArgumentParser()
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*uchwyt.*|[łl]adownica.*|kabura.*|kupi.*|latarka.*|amunicj.*|kolb.*|.*magazyne.*|.*DOWOZIMY.*|.*łuski.*|.*AMUNICJA.*|Chwyt.*|S[lł]uchawki.*|.*ulary.*|.*pocisk.*|.*Umarex.*|.*CO2.*|.*magazyn.*k.*|.*bagnet.*|.*maxim.*|.*d[pt]28.*|.*Anschutz.*|pas.*|uchyt.*|Mosin.*|Norinco.*|.*Torb[ay].*|Konwersj.*|Przyrząd.*|Zawiesz.*|.*[lł]adowni.*|.*Pouch.*|.*Chest.*rig.*|.*szyn.*RIS.*|.*Beryl.*szyn.*)$"
-blacklisted_text = "(.*polarms.*|.*DOWOZIMY.*|.*amunicj.*|.*mosin.*)"
+blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*uchwyt.*|[łl]adownica.*|kabura.*|kupi.*|latarka.*|amunicj.*|kolb.*|.*magazyne.*|.*DOWOZIMY.*|.*łuski.*|.*AMUNICJA.*|Chwyt.*|S[lł]uchawki.*|.*ulary.*|.*pocisk.*|.*Umarex.*|.*CO2.*|.*magazyn.*k.*|.*bagnet.*|.*maxim.*|.*d[pt]28.*|.*Anschutz.*|pas.*|uchyt.*|Mosin.*|Norinco.*|.*Torb[ay].*|Konwersj.*|Przyrząd.*|Zawiesz.*|.*[lł]adowni.*|.*Pouch.*|.*Chest.*rig.*|.*szyn.*RIS.*|.*Beryl.*szyn.*|.*ok[lł]adzi.*|.*Nosid.*|Mata.*|.*Range.*bag.*|.*kabur.*|.*kurtka.*|.*etui.*|.*szelki.*|.*plecak.*|.*iglica.*|.*bezpiecznik.*|.*pazur.*|Szafa.*|.*PBS-1.*|.*PBS1.*|.*Montaż.*|Cel.*|.*sprężyn.*|.*smarow.*|.*podchwy.*|.*Norinco.*|.*[zż]elow.*|.*wynajem.*|.*Beryl.*o[zże].*|.*kompensator.*|.*Maska.*|.*Przeziernik.*|.*xgrip.*|.*wiatr[oó]wka.*|.*czyszczeni.*|.*laser.*|.*Kolce.*|.*dwójn.*)$"
+blacklisted_text = "(.*polarms.*|.*DOWOZIMY.*|.*amunicj.*|.*mosin.*|█.*)"
+# minimalna cena oferty do rozważenia
+minimal_price = 500
 
 available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
 selected_vovoidships = []
@@ -35,8 +37,7 @@ class Adv:
 
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
-		if self.advtype != "Sprzedaż" or self.advtype == "" or self.price == "Do uzgodnienia" or not self.location in selected_vovoidships or re.match(re.compile(blacklisted_leads, flags=re.IGNORECASE), self.lead) != None or re.match(re.compile(blacklisted_text, flags=re.IGNORECASE), self.text) != None:
-
+		if self.advtype != "Sprzedaż" or re.match(re.compile(blacklisted_leads, flags=re.IGNORECASE), self.lead) != None or re.match(re.compile(blacklisted_text, flags=re.IGNORECASE), self.text) != None or (self.price != "Do uzgodnienia" and int(self.price.split()[0]) < minimal_price):
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
