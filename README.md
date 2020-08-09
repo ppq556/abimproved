@@ -1,9 +1,9 @@
-# Skrypt do wygodniejszego przeglądania ArmyBazar by ppq556 / avltree
+# Skrypt do wygodniejszego przeglądania ArmyBazar by ppq556 / blackphoenix / avltree
 
 ## Motywacja
-- usunięcie reklam i ogłoszeń sponsorowanych - zrobione
-- usunięcie ofert kupna - zrobione
-- usunięcie ofert nachalnych i powtarzalnych (np. GSP / RAK od Atena Guns) - zrobione
+- usunięcie reklam i ogłoszeń sponsorowanych
+- usunięcie ofert kupna
+- usunięcie ofert nachalnych i powtarzalnych (np. GSP / RAK)
 
 ## Instrukcja
 
@@ -22,7 +22,7 @@ docker run abimproved > armybazar.html
 
 #### Wymagania
 - python3 (apt install python3)
-- python3-httplib2 (apt install python3-httplib2 )
+- python3-httplib2 (apt install python3-httplib2)
 
 #### Użycie
 ```shell script
