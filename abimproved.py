@@ -5,7 +5,7 @@ import argparse
 import httplib2
 import urllib
 import re
-
+from past.builtins import execfile
 from html.parser import HTMLParser
 
 parser = argparse.ArgumentParser()
@@ -13,27 +13,25 @@ parser = argparse.ArgumentParser()
 ### Ustawienia
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
-# tytuły/treść ogłoszeń natrętnych/powtarzalnych (regexp)
-blacklisted_leads = "^(walther GSP|PM63 RAK SEMI PM 63|.*uchwyt.*|[łl]adownica.*|kabura.*|kupi.*|latarka.*|amunicj.*|kolb.*|.*magazyne.*|.*DOWOZIMY.*|.*łuski.*|.*AMUNICJA.*|Chwyt.*|S[lł]uchawki.*|.*ulary.*|.*pocisk.*|.*Umarex.*|.*CO2.*|.*magazyn.*k.*|.*bagnet.*|.*maxim.*|.*d[pt]28.*|.*Anschutz.*|pas.*|uchyt.*|Mosin.*|Norinco.*|.*Torb[ay].*|Konwersj.*|Przyrząd.*|Zawiesz.*|.*[lł]adowni.*|.*Pouch.*|.*Chest.*rig.*|.*szyn.*RIS.*|.*Beryl.*szyn.*|.*ok[lł]adzi.*|.*Nosid.*|Mata.*|.*Range.*bag.*|.*kabur.*|.*kurtka.*|.*etui.*|.*szelki.*|.*plecak.*|.*iglica.*|.*bezpiecznik.*|.*pazur.*|Szafa.*|.*PBS-1.*|.*PBS1.*|.*Montaż.*|Cel.*|.*sprężyn.*|.*smarow.*|.*podchwy.*|.*Norinco.*|.*[zż]elow.*|.*wynajem.*|.*Beryl.*o[zże].*|.*kompensator.*|.*Maska.*|.*Przeziernik.*|.*xgrip.*|.*wiatr[oó]wka.*|.*czyszczeni.*|.*laser.*|.*Kolce.*|.*dwójn.*)$"
-blacklisted_text = "(.*polarms.*|.*DOWOZIMY.*|.*amunicj.*|.*mosin.*|█.*)"
-# minimalna cena oferty do rozważenia
-minimal_price = 500
-
+# lista wszystkich województw
 available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
-selected_vovoidships = []
+
+# wartości do konfiguracji przez użytkownika (w osobnym pliku)
+execfile('ab_settings.py')
 
 ### Początek kodu
 class Adv:
-	advtype = "" # Sprzedaż / Zakup
-	url = ""
-	imgPrevUrl = ""
-	imgPrevAlt = ""
-	lead = ""
-	text = ""
-	price = ""
-	date = ""
-	time = ""
-	location = ""
+	def __init__ (self):
+		self.advtype = "" # Sprzedaż / Zakup
+		self.url = ""
+		self.imgPrevUrl = ""
+		self.imgPrevAlt = ""
+		self.lead = ""
+		self.text = ""
+		self.price = ""
+		self.date = ""
+		self.time = ""
+		self.location = ""
 
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
@@ -47,6 +45,7 @@ class Adv:
 		finalOutput += '<li class="lokalita">' + self.location + '</li>\n\t\t</ul>\n</div>\n'
 		return finalOutput
 
+# Zmienna przechowująca wszystkie obiekty ogłoszeń, inicjalnie pusta
 AdvList = []
 
 def printAdvs():
@@ -154,7 +153,13 @@ http = httplib2.Http()
 
 # Parametry żądania - 60 ogłoszeń na stronie; URL do ArmyBazar
 body = {'nastranku': '60'}
+# Pobranie contentu z ArmyBazar - domyślnie dwa requesty (dwie strony po 60 przedmiotów), aby zwiększyć liczbę treści, którą można filtrować
+# Liczba stron jest konfigurowalna w pliku ustawień
 content = http.request("http://bron-i-amunicja.armybazar.eu/pl/", method="POST", headers={'Content-type': 'application/x-www-form-urlencoded'}, body=urllib.parse.urlencode(body))[1]
+page = 2
+while page <= ab_numPages:
+	content += http.request("http://bron-i-amunicja.armybazar.eu/pl/strona/" + str(page) + "/", method="POST", headers={'Content-type': 'application/x-www-form-urlencoded'}, body=urllib.parse.urlencode(body))[1]
+	page += 1
 
 # Wywołujemy parse'owanie
 parser = ABHTMLParser()
