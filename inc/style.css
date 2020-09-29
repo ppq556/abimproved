@@ -839,8 +839,10 @@ span.orange {
 	#content_center {
 		width: 800px;
 		float: left;
-		margin-left: 650px;
+		margin-left: 550px;
+/*
 		margin-top: 400px;
+*/
 	}
 		.inner {
 			margin-left: 10px;
