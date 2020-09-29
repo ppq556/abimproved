@@ -13,6 +13,9 @@ parser = argparse.ArgumentParser()
 ### Ustawienia
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
+# wyrażenie regularne do pobierania nazwy i URL-a sprzedawcy
+sellerNameRegExp = ".*Ogłoszeniodawca: (<a href.*\">)?([a-zA-Z0-9_-]*)(</a>)?"
+sellerURLRegExp  = ".*Ogłoszeniodawca: <a href=\"(.*)\">.*"
 # lista wszystkich województw
 available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
 
@@ -23,6 +26,8 @@ execfile('ab_settings.py')
 class Adv:
 	def __init__ (self):
 		self.advtype = "" # Sprzedaż / Zakup
+		self.sellerName = ""
+		self.sellerURL = ""
 		self.url = ""
 		self.imgPrevUrl = ""
 		self.imgPrevAlt = ""
@@ -33,16 +38,51 @@ class Adv:
 		self.time = ""
 		self.location = ""
 
+	def getSellerName(self):
+		if self.url == "":
+			return
+
+		# Dodatkowe połączenie do ArmyBazar (niestety) i pobranie pełnej strony przedmiotu
+		httpSeller = httplib2.Http()
+		sellerContent = httpSeller.request(self.url, method="GET")[1]
+
+		# Regexp, wyodrębniający nazwę sprzedawcy
+		sellerName_search = re.search(sellerNameRegExp, sellerContent.decode())
+
+		if sellerName_search:
+			self.sellerName = sellerName_search.group(2).strip()
+
+			# Jeśli poprzedni regexp pobrał nazwę sprzedawcy, to wywołanie kolejnego, do URL-a (nie zawsze istnieje)
+			sellerURL_search = re.search(sellerURLRegExp, sellerContent.decode())
+
+			if sellerURL_search:
+				self.sellerURL = sellerURL_search.group(1).strip()
+
 	def __str__(self):
 		# Omijamy ogłoszenia, które nie są sprzedażą, nie mają kompletnych danych lub są natrętne/powtarzalne
 		if self.advtype != "Sprzedaż" or not self.location in selected_vovoidships or re.match(re.compile(blacklisted_leads, flags=re.IGNORECASE), self.lead) != None or re.match(re.compile(blacklisted_text, flags=re.IGNORECASE), self.text) != None or (self.price != "Do uzgodnienia" and float(self.price.split()[0]) < minimal_price):
+			return ""
+
+		# Pobieranie nazwy sprzedawcy - w tym miejscu (po podstawowych filtrach) ze względów wydajnościowych
+		# Niestety każde ogłoszenie oznacza jedno pełne dodatkowe pobranie strony z ArmyBazar
+		self.getSellerName()
+
+		# Domyślnie pokazywany jest tylko nick sprzedawcy
+		sellerString = "[" + self.sellerName + "]"
+
+		# Natomiast jeśli obiekt ma również niepustą wartość sellerURL to ubieramy ją w HTML razem z nazwą
+		if self.sellerURL != "":
+			sellerString = "<a href=\"" + self.sellerURL + "\">[" + self.sellerName + "]</a>"
+
+		# Dodatkowe filtrowanie po sprzedawcach
+		if re.match(re.compile(blacklisted_sellers, flags=re.IGNORECASE), self.sellerName) != None:
 			return ""
 
 		# Pozostałe ubieramy w odpowiedni HTML i zwracamy
 		finalOutput  = '<div class="' + advclass + '">\n\t\t<a href="' + self.url + '" class="img"><img src="' + self.imgPrevUrl + '" alt="' + self.imgPrevAlt + '"></img></a>\n\t\t'
 		finalOutput += '<div class="top"><h2><a href="' + self.url + '">' + self.lead + '</a></h2></div>\n\t\t<p>' + self.text + '</p>\n\t\t'
 		finalOutput += '<ul class="cendat">\n\t\t\t<li class="cena"><strong>' + self.price + '</strong></li>\n\t\t\t<li class="datum">' + self.date + ' ' + self.time + '</li>\n\t\t\t'
-		finalOutput += '<li class="lokalita">' + self.location + '</li>\n\t\t</ul>\n</div>\n'
+		finalOutput += '<li class="lokalita">' + self.location + '</li>' + sellerString + '\n\t\t</ul>\n</div>\n'
 		return finalOutput
 
 # Zmienna przechowująca wszystkie obiekty ogłoszeń, inicjalnie pusta
@@ -69,11 +109,11 @@ class ABHTMLParser(HTMLParser):
 
 			# w przeciwnym wypadku uzupełniamy atrybuty
 			if AdvList[-1].lead == "":
-				AdvList[-1].lead = data
+				AdvList[-1].lead = data.strip()
 			elif AdvList[-1].advtype == "":
 				AdvList[-1].advtype = data
 			elif AdvList[-1].text == "":
-				AdvList[-1].text = data
+				AdvList[-1].text = data.strip()
 			elif AdvList[-1].price == "":
 				AdvList[-1].price = data
 			elif AdvList[-1].date == "":
