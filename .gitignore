@@ -1,3 +1,5 @@
+.gitignore
 abimproved.sh
 ab_test.py
-index.html
+index.html*
+.htpasswd
