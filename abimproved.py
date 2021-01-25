@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser()
 # klasa div, w której są dane każdego poszczególnego ogłoszenia
 advclass = "inner inzerat"
 # wyrażenie regularne do pobierania nazwy i URL-a sprzedawcy
-sellerNameRegExp = ".*Ogłoszeniodawca: (<a href.*\">)?([a-zA-Z0-9_-]*)(</a>)?"
+sellerNameRegExp = ".*Ogłoszeniodawca: (<a href.*\">)?([a-zA-Z0-9_ -]*)(</a>)?"
 sellerURLRegExp  = ".*Ogłoszeniodawca: <a href=\"(.*)\">.*"
 # lista wszystkich województw
 available_vovoidships = ["Dolnośląskie", "Kujawsko-Pomorskie", "Lubelskie", "Lubuskie", "Łódzkie", "Małopolskie", "Mazowieckie", "Opolskie", "Podkarpackie", "Podlaskie", "Pomorskie", "Śląskie", "Świętokrzyskie", "Warmińsko-Mazurskie", "Wielkopolskie", "Zachodniopomorskie"]
@@ -67,8 +67,10 @@ class Adv:
 		# Niestety każde ogłoszenie oznacza jedno pełne dodatkowe pobranie strony z ArmyBazar
 		self.getSellerName()
 
-		# Domyślnie pokazywany jest tylko nick sprzedawcy
-		sellerString = "[" + self.sellerName + "]"
+		# Domyślnie pokazywany jest tylko nick sprzedawcy (jeśli jest niepusty)
+		sellerString = ""
+		if self.sellerName != "":
+			sellerString = "[" + self.sellerName + "]"
 
 		# Natomiast jeśli obiekt ma również niepustą wartość sellerURL to ubieramy ją w HTML razem z nazwą
 		if self.sellerURL != "":
