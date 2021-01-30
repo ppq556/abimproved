@@ -111,11 +111,11 @@ class ABHTMLParser(HTMLParser):
 
 			# w przeciwnym wypadku uzupełniamy atrybuty
 			if AdvList[-1].lead == "":
-				AdvList[-1].lead = data.strip()
+				AdvList[-1].lead = data.strip().replace("\n", " ")
 			elif AdvList[-1].advtype == "":
 				AdvList[-1].advtype = data
 			elif AdvList[-1].text == "":
-				AdvList[-1].text = data.strip()
+				AdvList[-1].text = data.strip().replace("\n", " ")
 			elif AdvList[-1].price == "":
 				AdvList[-1].price = data
 			elif AdvList[-1].date == "":
